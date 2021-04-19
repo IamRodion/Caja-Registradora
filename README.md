@@ -1,2 +1,5 @@
-# Caja-Registradorav0.08
-La última versión de mi primer código escrito antes de decidir cambiarlo a POO. Está muy desordenado y no es muy eficiente pero fue realizado 100% en un teléfono.
+# Caja-Registradora
+Este fue mi primer código creado desde que aprendí Python. 
+Inició construido en programación funcional pero luego lo cambié a POO.
+
+# Este código está hecho para hacer una caja registradora con la mejor interfaz y herramientas posibles.
