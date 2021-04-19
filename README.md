@@ -1,5 +1,6 @@
-# Caja-Registradora
-Este fue mi primer código creado desde que aprendí Python. 
-Inició construido en programación funcional pero luego lo cambié a POO.
+Este es el primer cambio a POO del software de caja.
+Se encuentran ya programadas clases y funcioes. Actualmente faltan los menús.
 
-# Este código está hecho para hacer una caja registradora por consola con la mejor interfaz y herramientas posibles.
+
+
+
