@@ -14,8 +14,8 @@ LOGO = """
                    \______/           """
 SALUDO = "Software de caja v0.11 -Creado por __Rodion__"
 
-total = []
-cart = []
+total = 0
+cart = {}
 reg_products = []
 
 #-------------------------------------------------------------------------------------------------
@@ -48,8 +48,15 @@ class Product():
         self.code = code
     
     def buy(self):
-        cart.append(self.name)
-        total.append(self.price)
+        if self.name in cart:
+            a = cart[self.name]
+            b = [1, self.price]
+            cart[self.name] = [a[0] + b[0], round(a[1] + b[1], 2)]
+        else:
+            cart[self.name] = [1, self.price]
+        global total
+        total += self.price
+        total = round(total, 2)
         print(f'El producto "{self.name}" ha sido comprado')
 
     def change_price(self, new_price):
@@ -64,10 +71,7 @@ class Product():
 
 #Creando funciones
 def clean_screen():
-    if os.name == "posix":
-        os.system("clear")
-    elif os.name == "java" or os.name == "nt":
-        os.system("cls")
+    os.system("clear || cls")
 
 def converter(func, choice):
     try:
@@ -75,7 +79,7 @@ def converter(func, choice):
         return converter
     except:
         clean_screen()
-        print(f'La opción "{choice}" no está disponible')
+        print(f'ERROR: La opción "{choice}" no está disponible')
 
 def create_product(name, price, code):
     new_product = Product(name, price, code)
@@ -90,8 +94,7 @@ def add_product():
     while True:
         print("Ingrese los datos del nuevo producto")
         code = input("Código: ")
-        code = converter(int, code)
-        if type(code) == int:
+        if code.isnumeric():
             codes = []
             for i in reg_products:
                 codes.append(i.code)
@@ -100,7 +103,10 @@ def add_product():
                 break
             else:
                 clean_screen()
-                print(f'El código "{code}" ya está registrado')
+                print(f'ERROR: El código "{code}" ya está registrado')
+        else:
+            clean_screen()
+            print("ERROR: El valor del código debe ser numérico")
 
     while True:
         print("Ingrese los datos del nuevo producto")
@@ -114,35 +120,122 @@ def add_product():
     print(f'El producto "{name}" fue creado y guardado correctamente en el registo')
 
 def show_products():
-    print("CÓDIGO\tNOMBRE\tPRECIO")
+    print("CÓDIGO\tPRECIO\tNOMBRE")
     for i in reg_products:
-        print(f"{i.code}\t{i.name}\t${i.price}")
+        print(f"{i.code}\t${i.price}\t{i.name}")
 
-def del_product(code):
-    for i in reg_products:
-        if i.code == code:
-            reg_products.remove(i)
-            clean_screen()
-            print(f'El producto "{i.name}" fue eliminado del registro')
+def del_product():
+    while True:
+        code = input("¿Código del producto que desea eliminar?: ")
+        if code.isnumeric():
+            codes = []
+            for i in reg_products:
+                codes.append(i.code)
+            if code in codes:
+                clean_screen()
+                for i in reg_products:
+                    if i.code == code:
+                        reg_products.remove(i)
+                        clean_screen()
+                        print(f'El producto "{i.name}" fue eliminado del registro')
+                    else:
+                        continue
+                break
+            else:
+                clean_screen()
+                print(f'ERROR: El código "{code}" no está registrado')
         else:
-            continue
+            clean_screen()
+            print("ERROR: El valor del código debe ser numérico")
 
-def edit_product(code):
-    for i in reg_products:
-        if i.code == code:
+def edit_product():
+    while True:
+        while True:
+            code = input("¿Cual es el código del producto que desea editar?: ")
+            if code.isnumeric():
+                codes = []
+                for i in reg_products:
+                    codes.append(i.code)
+                if code in codes:
+                    clean_screen()
+                    break
+                else:
+                    clean_screen()
+                    print(f'ERROR: El código "{code}" no está registrado')
+            else:
+                clean_screen()
+                print("ERROR: El valor del código debe ser numérico")
+
+        while True:
+            price = input("¿Que precio desea establecer?: ")
+            price = converter(float, price)
+            if type(price) == float:
+                clean_screen()
+                break
+
+        name = input("¿Que nombre desea establecer?: ")
+
+        for i in reg_products:
+            if i.code == code:
+                clean_screen()
+                i.change_name(name)
+                i.change_price(price)
+            else:
+                continue
+        break
+
+def caja():
+    while True:
+        code_to_buy = input("Código del producto a comprar: ")
+
+        if code_to_buy.isnumeric():
+            codes = []
+            for i in reg_products:
+                codes.append(i.code)
+            if code_to_buy in codes:
+                clean_screen()
+                for i in reg_products:
+                    if code_to_buy == i.code:
+                        clean_screen
+                        i.buy()
+                    else:
+                        continue
+            else:
+                clean_screen()
+                print(f'ERROR: El código "{code_to_buy}" no está registrado')
+
+        elif code_to_buy == "t" or code_to_buy == "T":
             clean_screen()
-            i.change_name(name)
-            i.change_price(price)
+            print("CANTIDAD\tPRECIO\tNOMBRE")
+            for i in cart:
+                print(f"\t{cart[i][0]}\t${cart[i][1]}\t{i}")
+            print("--------------------------------")
+            print(f"Total-------------------${total}")
+            print()
+            break
+
+        elif code_to_buy == "s" or code_to_buy == "S":
+            clean_screen()
+            print("CANTIDAD\tPRECIO\tNOMBRE")
+            for i in cart:
+                print(f"\t{cart[i][0]}\t${cart[i][1]}\t{i}")
+            print("--------------------------------")
+            print(f"Total-------------------${total}")
+            print()
+
         else:
-            continue
+            clean_screen()
+            print("ERROR: El valor del código debe ser numérico")
+
+
 
 #-------------------------------------------------------------------------------------------------
 
 #Creando productos pre-Registrados
-create_product("Papa", 1.13, 0)
-create_product("Arroz", 1.35, 1)
-create_product("Pasta", 1.10, 2)
-create_product("Avena", 1.54, 3)
+create_product("Papa", 1.13, "0")
+create_product("Arroz", 1.35, "1")
+create_product("Pasta", 1.10, "2")
+create_product("Avena", 1.54, "3")
 
 #-------------------------------------------------------------------------------------------------
 
@@ -172,53 +265,25 @@ while True:
 
             elif choice == "1":
                 clean_screen()
-                show_products()
-                print("")
+                if len(reg_products) == 0:
+                    print("ERROR: No hay productos registrados")
+                else:
+                    show_products()
+                    print("")
 
             elif choice == "2":
                 clean_screen()
-                while True:
-                    while True:
-                        code = input("¿Cual es el código del producto que desea editar?: ")
-                        code = converter(int, code)
-                        if type(code) == int:
-                            codes = []
-                            for i in reg_products:
-                                codes.append(i.code)
-                            if code in codes:
-                                clean_screen()
-                                break
-                            else:
-                                clean_screen()
-                                print(f'El código "{code}" no está registrado')
-
-                    while True:
-                        price = input("¿Que precio desea establecer?: ")
-                        price = converter(float, price)
-                        if type(price) == float:
-                            clean_screen()
-                            break
-
-                    name = input("¿Que nombre desea establecer?: ")
-                    edit_product(code)
-                    break
-
+                if len(reg_products) == 0:
+                    print("ERROR: No hay productos registrados")
+                else:
+                    edit_product()
+                
             elif choice == "3":
                 clean_screen()
-                while True:
-                    code = input("¿Código del producto que desea eliminar?: ")
-                    code = converter(int, code)
-                    if type(code) == int:
-                        codes = []
-                        for i in reg_products:
-                            codes.append(i.code)
-                        if code in codes:
-                            clean_screen()
-                            del_product(code)
-                            break
-                        else:
-                            clean_screen()
-                            print(f'El código "{code}" no está registrado')
+                if len(reg_products) == 0:
+                    print("ERROR: No hay productos registrados")
+                else:
+                    del_product()
 
             elif choice == "4":
                 clean_screen()
@@ -230,7 +295,9 @@ while True:
 
     elif choice == "2":
         clean_screen()
-        print("Aqui va el código de la caja (Próximamente)")
+        caja()
+        cart = {}
+        total = 0
 
     elif choice == "3":
         clean_screen()
@@ -239,4 +306,3 @@ while True:
     else:
         clean_screen()
         print("ERROR: La opción indicada no existe")
-
