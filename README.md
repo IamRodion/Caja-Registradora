@@ -1,4 +1,5 @@
 # Caja Registradora 
+Versión 0.13
 
 ## About: 
 Este es mi primer proyecto desde que aprendí Python. Se trata de crear una caja registradora por consola **con muchas herramientas** y **muy intuitiva**.
