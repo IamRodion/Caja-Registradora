@@ -1,4 +1,10 @@
-import os
+import os, yaml, time
+from colorama import Style, Back, init
+#import Funciones
+
+init(autoreset=True)
+COLOR_ROJO = Back.RED+Style.BRIGHT
+COLOR_VERDE = Back.GREEN+Style.BRIGHT
 
 LOGO = """
      $$$$$$\                          
@@ -12,7 +18,7 @@ LOGO = """
                   $$\   $$ |          
                   \$$$$$$  |          
                    \______/           """
-SALUDO = "Software de caja v0.11 -Creado por __Rodion__"
+SALUDO = "Software de caja v0.13 -Creado por __Rodion__"
 
 total = 0
 cart = {}
@@ -37,6 +43,11 @@ menu2 = """\t MENÚ DE ADMINISTRACIÓN DE PRODUCTOS
 4) Agregar Nuevo Producto
 5) Volver al Menú Anterior
 """
+
+menu3 = """\t CAJA REGISTRADORA
+1) Registrar Nueva Compra
+2) Volver al Menú Anterior
+"""
 #-------------------------------------------------------------------------------------------------
 
 #Creando la clase para los produtos
@@ -57,17 +68,17 @@ class Product():
         global total
         total += self.price
         total = round(total, 2)
-        print(f'El producto "{self.name}" ha sido comprado')
+        print(f'{COLOR_VERDE}El producto "{self.name}" ha sido comprado')
 
     def change_price(self, new_price):
         self.price = new_price
-        print(f'El precio del producto "{self.name}" ha sido cambiado a "{self.price}"')
+        print(f'{COLOR_VERDE}El precio del producto "{self.name}" ha sido cambiado a $"{self.price}"')
 
     def change_name(self, new_name):
         self.name = new_name
-        print(f'El nombre del producto se cambió a "{self.name}"')
+        print(f'{COLOR_VERDE}El nombre del producto se cambió a "{self.name}"')
 
-#-------------------------------------------------------------------------------------------------
+# #-------------------------------------------------------------------------------------------------
 
 #Creando funciones
 def clean_screen():
@@ -79,7 +90,7 @@ def converter(func, choice):
         return converter
     except:
         clean_screen()
-        print(f'ERROR: La opción "{choice}" no está disponible')
+        print(f'{COLOR_ROJO}ERROR: La opción "{choice}" no está disponible')
 
 def create_product(name, price, code):
     new_product = Product(name, price, code)
@@ -103,10 +114,10 @@ def add_product():
                 break
             else:
                 clean_screen()
-                print(f'ERROR: El código "{code}" ya está registrado')
+                print(f'{COLOR_ROJO}ERROR: El código "{code}" ya está registrado')
         else:
             clean_screen()
-            print("ERROR: El valor del código debe ser numérico")
+            print(f"{COLOR_ROJO}ERROR: El valor del código debe ser numérico")
 
     while True:
         print("Ingrese los datos del nuevo producto")
@@ -117,7 +128,7 @@ def add_product():
 
     create_product(name, price, code)
     clean_screen()
-    print(f'El producto "{name}" fue creado y guardado correctamente en el registo')
+    print(f'{COLOR_VERDE}El producto "{name}" fue creado y guardado correctamente en el registo')
 
 def show_products():
     print("CÓDIGO\tPRECIO\tNOMBRE")
@@ -137,16 +148,16 @@ def del_product():
                     if i.code == code:
                         reg_products.remove(i)
                         clean_screen()
-                        print(f'El producto "{i.name}" fue eliminado del registro')
+                        print(f'{COLOR_VERDE}El producto "{i.name}" fue eliminado del registro')
                     else:
                         continue
                 break
             else:
                 clean_screen()
-                print(f'ERROR: El código "{code}" no está registrado')
+                print(f'{COLOR_ROJO}ERROR: El código "{code}" no está registrado')
         else:
             clean_screen()
-            print("ERROR: El valor del código debe ser numérico")
+            print(f"{COLOR_ROJO}ERROR: El valor del código debe ser numérico")
 
 def edit_product():
     while True:
@@ -161,10 +172,10 @@ def edit_product():
                     break
                 else:
                     clean_screen()
-                    print(f'ERROR: El código "{code}" no está registrado')
+                    print(f'{COLOR_ROJO}ERROR: El código "{code}" no está registrado')
             else:
                 clean_screen()
-                print("ERROR: El valor del código debe ser numérico")
+                print(f"{COLOR_ROJO}ERROR: El valor del código debe ser numérico")
 
         while True:
             price = input("¿Que precio desea establecer?: ")
@@ -186,7 +197,7 @@ def edit_product():
 
 def caja():
     while True:
-        code_to_buy = input("Código del producto a comprar: ")
+        code_to_buy = input('·Código del producto a comprar ("S" para subtotal o "T" para total): ')
 
         if code_to_buy.isnumeric():
             codes = []
@@ -202,7 +213,7 @@ def caja():
                         continue
             else:
                 clean_screen()
-                print(f'ERROR: El código "{code_to_buy}" no está registrado')
+                print(f'{COLOR_ROJO}ERROR: El código "{code_to_buy}" no está registrado')
 
         elif code_to_buy == "t" or code_to_buy == "T":
             clean_screen()
@@ -212,6 +223,16 @@ def caja():
             print("--------------------------------")
             print(f"Total-------------------${total}")
             print()
+
+            fecha = time.strftime("%d-%m-%Y %H:%M:%S")
+            registro_clave = {fecha:{}}
+
+            for i in cart:
+                registro_clave[fecha].update({i:{"Cantidad":cart[i][0], "Precio":cart[i][1]}})
+                registro_clave[fecha].update({f"Total":total})
+            
+            with open('Historial.yaml', 'a') as file:
+                yaml.dump(registro_clave, file)
             break
 
         elif code_to_buy == "s" or code_to_buy == "S":
@@ -225,9 +246,16 @@ def caja():
 
         else:
             clean_screen()
-            print("ERROR: El valor del código debe ser numérico")
+            print(f"{COLOR_ROJO}ERROR: El valor del código debe ser numérico")
 
 
+def history():
+    if os.name == "posix":
+        os.system("nano -v Historial.yaml")
+    elif os.name == "nt" or os.name == "java":
+        os.system("Historial.yaml")
+    else:
+        print(f"{COLOR_ROJO}ERROR: No se puede abrir el archivo")
 
 #-------------------------------------------------------------------------------------------------
 
@@ -238,71 +266,88 @@ create_product("Pasta", 1.10, "2")
 create_product("Avena", 1.54, "3")
 
 #-------------------------------------------------------------------------------------------------
-
 #Loop principal
-clean_screen()
+def app():
+    clean_screen()
 
-while True:
-    print(SALUDO)
-    print(LOGO)
-    print("")
-    print(menu1)
-    choice = input("Elija una opción: ")
+    while True:
+        print(SALUDO)
+        print(LOGO)
+        print("")
+        print(menu1)
+        choice = input("Elija una opción: ")
 
-    if choice == "4":
-        break
+        if choice == "4":
+            break
 
-    elif choice == "1":
-        clean_screen()
-        
-        while True:
-            print(menu2)
-            choice = input("Elija una opción: ")
+        elif choice == "1":
+            clean_screen()
+            
+            while True:
+                print(menu2)
+                choice = input("Elija una opción: ")
 
-            if choice == "5":
-                clean_screen()
-                break
+                if choice == "5":
+                    clean_screen()
+                    break
 
-            elif choice == "1":
-                clean_screen()
-                if len(reg_products) == 0:
-                    print("ERROR: No hay productos registrados")
+                elif choice == "1":
+                    clean_screen()
+                    if len(reg_products) == 0:
+                        print(f"{COLOR_ROJO}ERROR: No hay productos registrados")
+                    else:
+                        show_products()
+                        print("")
+
+                elif choice == "2":
+                    clean_screen()
+                    if len(reg_products) == 0:
+                        print(f"{COLOR_ROJO}ERROR: No hay productos registrados")
+                    else:
+                        edit_product()
+                    
+                elif choice == "3":
+                    clean_screen()
+                    if len(reg_products) == 0:
+                        print(f"{COLOR_ROJO}ERROR: No hay productos registrados")
+                    else:
+                        del_product()
+
+                elif choice == "4":
+                    clean_screen()
+                    add_product()
+
                 else:
-                    show_products()
-                    print("")
+                    clean_screen()
+                    print(f"{COLOR_ROJO}ERROR: La opción indicada no existe")
 
-            elif choice == "2":
-                clean_screen()
-                if len(reg_products) == 0:
-                    print("ERROR: No hay productos registrados")
+        elif choice == "2":
+            clean_screen()
+            while True:
+                print(menu3)
+                choice = input("Elija una opción: ")
+                if choice == "1":
+                    clean_screen()
+                    caja()
+                    global cart 
+                    cart = {}
+                    global total
+                    total = 0
+                elif choice == "2":
+                    clean_screen()
+                    break
                 else:
-                    edit_product()
-                
-            elif choice == "3":
-                clean_screen()
-                if len(reg_products) == 0:
-                    print("ERROR: No hay productos registrados")
-                else:
-                    del_product()
+                    clean_screen()
+                    print(f"{COLOR_ROJO}ERROR: La opción indicada no existe")
 
-            elif choice == "4":
-                clean_screen()
-                add_product()
 
-            else:
-                clean_screen()
-                print("ERROR: La opción indicada no existe")
+        elif choice == "3":
+            clean_screen()
+            history()
 
-    elif choice == "2":
-        clean_screen()
-        caja()
-        cart = {}
-        total = 0
+        else:
+            clean_screen()
+            print(f"{COLOR_ROJO}ERROR: La opción indicada no existe")   
 
-    elif choice == "3":
-        clean_screen()
-        print("Aqui va el código del historial (Próximamente)")
-
-    else:
-        clean_screen()
-        print("ERROR: La opción indicada no existe")
+if __name__ == "__main__":
+    app()
