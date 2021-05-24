@@ -1,5 +1,4 @@
 # Caja Registradora 
-Versión 0.13
 
 ## About: 
 Este es mi primer proyecto desde que aprendí Python. Se trata de crear una caja registradora por consola **con muchas herramientas** y **muy intuitiva**.
@@ -25,8 +24,7 @@ Para que el programa funcione correctamente, será **necesario instalar** las si
 * [Colorama](https://pypi.org/project/colorama/ "Ir a YAML en PyPI"): Para colores en consola.
 
 ```
-pip install colorama
-pip install pyyaml
+pip install -r requirements.txt
 ```
 
 ## Cambios:
